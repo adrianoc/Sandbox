@@ -94,12 +94,13 @@ jobs:
                 if (result === null)
                   return ApiReviewApproverNotFound;
 
-                core.notice(` #${result.length}`);
+                core.notice(`Count: ${result.length}`);
 
                 try {
                   for(let currentIssue of result) {
+                    core.notice(`Verifying issue #${currentIssue}`);
                     let issue_number = Number.parseInt(currentIssue.substring(1), 10); // skips "#" prefix
-                    core.notice(`Verifying issue #${issue_number}`);
+                    
 
                     let labeler = getLabeler(issue_number);
                     
@@ -116,6 +117,6 @@ jobs:
             // Entry point
             const approver = await getApiRequestIssueApprover();
             if (approver === null)
-              core.setFailed("No api-approved label found linked to PR");
+              core.setFailed("No api-approved issue found linked to PR");
             else
               core.notice(`Approved by ${approver}`);
