@@ -88,7 +88,7 @@ jobs:
             async function getApiRequestIssueApprover() {
                 var issuesOrPRReferences = context.payload.pull_request.body;
 
-                let re = /#[0-9]{1,}/g;
+                let re = /\s#[0-9]{1,}\b/g;
                 let result = issuesOrPRReferences.match(re);
 
                 if (result === null)
@@ -102,8 +102,6 @@ jobs:
                     let issue_number = Number.parseInt(currentIssue.substring(1), 10); // skips "#" prefix
 
                     let labeler = await getLabeler(issue_number);
-                    
-                    core.notice(`>>> Labeler: ${labeler}`);
                     if (labeler !== ApiReviewApproverNotFound)
                       return labeler;
                   }
