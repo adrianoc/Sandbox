@@ -17,9 +17,9 @@ jobs:
             var issuesOrPRReferences = context.payload.pull_request.body;
 
             let re = /\s#[0-9]{1,}\b/g;
-            let result = issuesOrPRReferences.match(re)
+            let result = issuesOrPRReferences.match(re);
 
-            if (result.length > 0) {
+            if (result !== null) {
               for(let r of result)
               core.notice(`---> ${r}`);
             }
