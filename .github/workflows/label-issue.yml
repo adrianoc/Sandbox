@@ -95,8 +95,10 @@ jobs:
                   return ApiReviewApproverNotFound;
 
                 try {
-                  for(let currentIssue of result) {                  
+                  for(let currentIssue of result) {
                     let issue_number = Number.parseInt(currentIssue.substring(2), 10); // skips " #" prefix
+                    core.notice(`Verifying issue #${issue_number}`);
+
                     let labeler = getLabeler(issue_number);
                     
                     if (labeler !== ApiReviewApproverNotFound)
