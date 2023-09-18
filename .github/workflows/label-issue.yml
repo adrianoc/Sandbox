@@ -15,4 +15,10 @@ jobs:
         with:
           script: |
             var issuesOrPRReferences = context.payload.pull_request.body;
-            core.notice(issuesOrPRReferences);
+
+            let re = /\s#[0-9]{1,}\b/g;
+            let result = issuesOrPRReferences.match(re)
+
+
+            for(let r of result)
+              core.notice(`---> ${r}`);
