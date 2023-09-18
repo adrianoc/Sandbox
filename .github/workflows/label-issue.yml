@@ -88,15 +88,17 @@ jobs:
             async function getApiRequestIssueApprover() {
                 var issuesOrPRReferences = context.payload.pull_request.body;
 
-                let re = /\s#[0-9]{1,}\b/g;
+                let re = /#[0-9]{1,}/g;
                 let result = issuesOrPRReferences.match(re);
 
                 if (result === null)
                   return ApiReviewApproverNotFound;
 
+                core.notice(` #${result.length}`);
+
                 try {
                   for(let currentIssue of result) {
-                    let issue_number = Number.parseInt(currentIssue.substring(2), 10); // skips " #" prefix
+                    let issue_number = Number.parseInt(currentIssue.substring(1), 10); // skips "#" prefix
                     core.notice(`Verifying issue #${issue_number}`);
 
                     let labeler = getLabeler(issue_number);
