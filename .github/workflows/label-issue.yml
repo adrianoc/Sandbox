@@ -19,6 +19,10 @@ jobs:
             let re = /\s#[0-9]{1,}\b/g;
             let result = issuesOrPRReferences.match(re)
 
-
-            for(let r of result)
+            if (result.length > 0) {
+              for(let r of result)
               core.notice(`---> ${r}`);
+            }
+            else {
+              core.warning(" >>> no matches <<< ");
+            }
