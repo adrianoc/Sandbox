@@ -14,15 +14,104 @@ jobs:
       - uses: actions/github-script@v6
         with:
           script: |
-            var issuesOrPRReferences = context.payload.pull_request.body;
+            const ApprovalLabel = "api-approved";
+            const ApiReviewApproverNotFound = null;
+            
 
-            let re = /\s#[0-9]{1,}\b/g;
-            let result = issuesOrPRReferences.match(re);
+            //
+            // Returns the login name of user that applied 'api-approved' label or 'null' if label is present.
+            // --------------------------------------------------------------------------------------------------------------------------------
+            async function getLabeler(number) {
+              const parameters = {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: number,
+              };
 
-            if (result !== null) {
-              for(let r of result)
-              core.notice(`---> ${r}`);
+              const query = `
+                      query($owner:String!, $repo:String!, $issue_number:Int!) {
+                        repository(owner: $owner, name: $repo) {
+                          issue(number: $issue_number) {                                    
+                              title,
+                              timelineItems(last:100, BEFORE itemTypes:[LABELED_EVENT, UNLABELED_EVENT]) {
+                                pageCount,
+                                pageInfo { startCursor, hasPreviousPage }, 
+                                nodes {
+                                  __typename,
+                                  ... on LabeledEvent {
+                                    label { name },
+                                    actor { login }
+                                  }
+                                }
+                              }
+                          }
+                        }
+                      }`;
+
+              try {
+                let previousPageCursor = "";
+                let keepSearching = true;
+
+                while(keepSearching) {
+                  const issueLabelEvents = await github.graphql(query.replace("BEFORE", previousPageCursor), parameters);
+
+                  if (issueLabelEvents.repository.issue.timelineItems.pageCount === 0) {
+                    break; // no results.
+                  }
+
+                  // lookup connect/disconnect timeline item from last -> first so we take into account the last
+                  // occurrence only.
+                  const issue = issueLabelEvents.repository.issue;
+                  for(index = issue.timelineItems.pageCount - 1; index >= 0; index-- ) {
+                    const labelEvent = issue.timelineItems.nodes[index];
+                    core.notice(`Checking event for label #${labelEvent.label.name}`);
+                    
+                    if (labelEvent.label.name == ApprovalLabel) {
+                      core.notice(`[Label: ${labelEvent.label.name}, Issue: ${number}] ${labelEvent.__typename}, actor: ${labelEvent.actor.login}`);
+                      return labelEvent.__typename === "LabeledEvent" ? labelEvent.actor.login : ApiReviewApproverNotFound;
+                    }                            
+                  }
+                  previousPageCursor = `before: ${issueLabelEvents.repository.issue.timelineItems.pageInfo.startCursor},`;
+                  keepSearching = issueLabelEvents.repository.issue.timelineItems.pageInfo.hasPreviousPage;
+                }
+              }
+              catch(exception) {
+                core.error(`Unable to retrieve issue ${number}. Exception caught:\n${exception}`);
+                return ApiReviewApproverNotFound;
+              }
+              
+              core.notice(`Label '${ApprovalLabel}' not found on issue #${number}`);
+              return ApiReviewApproverNotFound;
             }
-            else {
-              core.warning(" >>> no matches <<< ");
+
+            // --------------------------------------------------------------------------------------------------------------------------------
+            async function getApiRequestIssueApprover() {
+                var issuesOrPRReferences = context.payload.pull_request.body;
+
+                let re = /\s#[0-9]{1,}\b/g;
+                let result = issuesOrPRReferences.match(re);
+
+                if (result === null)
+                  return ApiReviewApproverNotFound;
+
+                try {
+                  for(let currentIssue of result) {                  
+                    let issue_number = Number.parseInt(currentIssue.substring(2), 10); // skips " #" prefix
+                    let labeler = getLabeler(issue_number);
+                    
+                    if (labeler !== ApiReviewApproverNotFound)
+                      return labeler;
+                  }
+                } catch(exception) {
+                    core.error(`Exception caught retrieving public api approver name (from issue):\n${exception}`);
+                }
+
+                return ApiReviewApproverNotFound;
             }
+
+            // Entry point
+            const approver = await getApiRequestIssueApprover();
+            if (approver === null)
+              core.setFailed("No api-approved label found linked to PR");
+            else
+              core.notice(`Approved by ${approver}`);
