@@ -99,7 +99,7 @@ jobs:
                 try {
                   for(let currentIssue of result) {
                     core.notice(`Verifying issue #${currentIssue}`);
-                    let issue_number = Number.parseInt(currentIssue.substring(1), 10); // skips "#" prefix
+                    let issue_number = Number.parseInt(currentIssue.substring(2), 10); // skips " #" prefix
 
                     let labeler = await getLabeler(issue_number);
                     if (labeler !== ApiReviewApproverNotFound)
