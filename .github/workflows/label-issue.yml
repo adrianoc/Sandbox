@@ -1,24 +1,23 @@
 name: Test
 on:
-  pull_request:
+  issues:
     types:
+      - opened
+      - edited
+      - deleted
+      - transferred
+      - pinned
+      - unpinned
+      - closed
+      - reopened
       - assigned
       - unassigned
       - labeled
       - unlabeled
-      - opened
-      - edited
-      - closed
-      - reopened
-      - synchronize
-      - converted_to_draft
-      - ready_for_review
       - locked
       - unlocked
-      - review_requested
-      - review_request_removed
-      - auto_merge_enabled
-      - auto_merge_disabled
+      - milestoned
+      - demilestoned
 jobs:
   label_issues:
     runs-on: ubuntu-latest
