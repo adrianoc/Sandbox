@@ -1,6 +1,6 @@
 name: Test
 on:
-  issues:
+  pull_request:
 
 jobs:
   label_issues:
