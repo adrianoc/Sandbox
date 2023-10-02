@@ -1,0 +1,13 @@
+name: PushTest
+on:
+  push
+
+jobs:
+  push_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            var issuesOrPRReferences = JSON.stringify(context.payload);
+            core.notice(issuesOrPRReferences);
