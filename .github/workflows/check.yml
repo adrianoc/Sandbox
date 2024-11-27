@@ -1,5 +1,5 @@
 name: Check disabled tests
-run-name: Checking ${{ github.ref }} 🚀
+run-name: Checking for closed issues referenced in source at ${{ github.ref }} 🚀
 on: 
     issues:
       types:
@@ -10,13 +10,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Check
-        run : |
-            set +e
-            grep -rHn "#${{ github.event.issue.number }}" --include="*.cs" . > /tmp/sources-referencing-closed-issues.txt
-            if [ $? -eq 0 ]; then
-              set -e
-              while IFS=: read -r errorPath errorLine errorContent; do
-                  echo "::error file=$errorPath,line=$errorLine,title=$errorContent::Missing semicolon"
-              done < /tmp/sources-referencing-closed-issues.txt
-            fi
+      - name: Grep for the issue 
+        run : grep -rHn "#${{ github.event.issue.number }}" --include="*.cs" . > sources-referencing-closed-issues.txt || true
+      - name: Checking grep resuls
+        uses : actions/github-script@v6
+        with: |
+          const fs = require('fs');
+            
+          // Read the grep results
+          const grepOutput = fs.readFileSync('./sources-referencing-closed-issues.txt', 'utf8');
+          
+          if (grepOutput) {
+            core.warning(grepOutput);
+          }
