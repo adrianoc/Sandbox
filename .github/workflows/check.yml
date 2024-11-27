@@ -14,12 +14,13 @@ jobs:
         run : grep -rHn "#${{ github.event.issue.number }}" --include="*.cs" . > sources-referencing-closed-issues.txt || true
       - name: Checking grep resuls
         uses : actions/github-script@v6
-        with: |
-          const fs = require('fs');
+        with: 
+          script: |
+            const fs = require('fs');
+              
+            // Read the grep results
+            const grepOutput = fs.readFileSync('./sources-referencing-closed-issues.txt', 'utf8');
             
-          // Read the grep results
-          const grepOutput = fs.readFileSync('./sources-referencing-closed-issues.txt', 'utf8');
-          
-          if (grepOutput) {
-            core.warning(grepOutput);
-          }
+            if (grepOutput) {
+              core.warning(grepOutput);
+            }
