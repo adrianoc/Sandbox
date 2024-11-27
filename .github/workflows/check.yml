@@ -11,6 +11,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Check
-        uses: actions/github-script@v6
-        with: 
-          script : core.warning('---> Issue ${{ github.event.issue.number }} was closed. Checking if any tests were disabled.');
+        run : |
+            grep -Hn "#${{ github.event.issue.number }}" **/*.cs > /tmp/sources-referencing-closed-issues.txt
+            if [ $? -neq 0 ]; then
+              while IFS=: read -r errorPath errorLine errorContent; do
+                  echo "::error file=$errorPath,line=$errorLine,title=$errorContent::Missing semicolon"
+              done < /tmp/sources-referencing-closed-issues.txt
+            fi
