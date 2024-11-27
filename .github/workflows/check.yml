@@ -13,7 +13,7 @@ jobs:
       - name: Check
         run : |
             grep -rHn "#${{ github.event.issue.number }}" --include="*.cs" . > /tmp/sources-referencing-closed-issues.txt
-            if [ $? -neq 0 ]; then
+            if [ $? -eq 0 ]; then
               while IFS=: read -r errorPath errorLine errorContent; do
                   echo "::error file=$errorPath,line=$errorLine,title=$errorContent::Missing semicolon"
               done < /tmp/sources-referencing-closed-issues.txt
