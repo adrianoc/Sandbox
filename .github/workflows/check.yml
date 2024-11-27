@@ -38,7 +38,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.payload.issue.number,
-                body: 'The following tests are disabled due to this issue. Reenable them before closing the issue.\n\n${{ grepOutput }}'
+                body: `The following tests are disabled due to this issue. Reenable them before closing the issue.\n\n${ grepOutput }`
               });
 
               core.warning(grepOutput);
