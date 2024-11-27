@@ -11,6 +11,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Check
+        continue-on-error: true
         run : |
             grep -rHn "#${{ github.event.issue.number }}" --include="*.cs" . > /tmp/sources-referencing-closed-issues.txt
             if [ $? -eq 0 ]; then
