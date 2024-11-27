@@ -22,5 +22,24 @@ jobs:
             const grepOutput = fs.readFileSync('./sources-referencing-closed-issues.txt', 'utf8');
             
             if (grepOutput) {
+              const issueBody = context.payload.issue.body;
+              const issueLabels = context.payload.issue.labels.map(label => label.name);
+
+              // Reopen the issue
+              await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.payload.issue.number,
+                  state: 'open'
+              });
+
+              // Add a comment warning the user
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                body: 'The following tests are disabled due to this issue. Reenable them before closing the issue.\n\n${{ grepOutput }}'
+              });
+
               core.warning(grepOutput);
             }
