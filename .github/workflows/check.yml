@@ -37,11 +37,11 @@ jobs:
             const grepOutput = fs.readFileSync('./sources-referencing-closed-issues.txt', 'utf8');
             
             if (grepOutput) {
-              var offendingSources = parseSourcesReferencingIssue(grepOutput, context.repo.repo);
-
+              
               const issueBody = context.payload.issue.body;
               const issueLabels = context.payload.issue.labels.map(label => label.name);
               const projectURL = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
+              var offendingSources = parseSourcesReferencingIssue(grepOutput, projectURL);
 
               if (issueLabels.includes("force-close")) {
                 await github.rest.issues.createComment({
