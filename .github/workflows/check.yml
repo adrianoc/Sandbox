@@ -56,7 +56,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.payload.issue.number,
-                body: `The following sources contains disabled tests due to this issue. Reenable them before closing the issue.\n\n${ grepOutput }`
+                body: x(grepOutput, context.repo.repo)
               });
 
               core.warning(grepOutput);
