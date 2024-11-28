@@ -28,7 +28,7 @@ jobs:
                 return `[${lineParts[0]}](${repo}/blob/main/${lineParts[0]}#L${lineParts[1]}), Line:${lineParts[1]}, Reference:${lineParts[2]}`;
               });
 
-              return splitLines.join(">");
+              return splitLines.join("<br/>");
             }
             
             const fs = require('fs');
