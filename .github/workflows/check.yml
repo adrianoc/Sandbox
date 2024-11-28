@@ -1,5 +1,5 @@
 name: Check disabled tests
-run-name: Checking for closed issues referenced in source at ${{ github.ref }} 🚀
+run-name: Checking for closing issues referenced in source at ${{ github.ref }} 🚀
 on: 
     issues:
       types:
@@ -25,7 +25,7 @@ jobs:
 
               const splitLines = lines.map(line => {
                 const lineParts = line.split(':');
-                return `[${lineParts[0]}](${repo}/blob/main/${lineParts[0]}), Line:${lineParts[1]}, Reference:${lineParts[2]}`;
+                return `[${lineParts[0]}](${repo}/blob/main/${lineParts[0]}#L${lineParts[1]}), Line:${lineParts[1]}, Reference:${lineParts[2]}`;
               });
 
               return splitLines.join("<br />");
