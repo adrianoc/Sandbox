@@ -11,10 +11,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Grep for the issue 
-        run : grep -rHn -E "Test\(.*Ignore=.+#${{ github.event.issue.number }}.+\)" --include="*.cs" . > sources-referencing-closed-issues.txt || true
-        run : grep -rHn -E "Ignore\(.+?#${{ github.event.issue.number }}.+\)" --include="*.cs" . >> sources-referencing-closed-issues.txt || true
-        run : grep -rHn -E "SetIgnore\(.+?#${{ github.event.issue.number }}.+\)" --include="*.cs" . >> sources-referencing-closed-issues.txt || true
-        run : grep -rHn -E "IgnoreReason=.*#${{ github.event.issue.number }}.*" --include="*.cs" . >> sources-referencing-closed-issues.txt || true
+        run : grep -rHn -E "Test\(.*Ignore=.+#${{ github.event.issue.number }}.+\)" --include="*.cs" . > sources-referencing-closed-issues.txt && \
+              grep -rHn -E "Ignore\(.+?#${{ github.event.issue.number }}.+\)" --include="*.cs" . >> sources-referencing-closed-issues.txt && \
+              grep -rHn -E "SetIgnore\(.+?#${{ github.event.issue.number }}.+\)" --include="*.cs" . >> sources-referencing-closed-issues.txt && \
+              grep -rHn -E "IgnoreReason=.*#${{ github.event.issue.number }}.*" --include="*.cs" . >> sources-referencing-closed-issues.txt || true
       - name: Checking grep resuls
         uses : actions/github-script@v6
         with: 
