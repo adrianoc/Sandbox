@@ -28,7 +28,7 @@ jobs:
                 return `[${lineParts[0]}](${repo}/blob/main/${lineParts[0]}#L${lineParts[1]}), Line:${lineParts[1]}, Reference:${lineParts[2]}`;
               });
 
-              return splitLines.join("<br />");
+              return splitLines.join(">");
             }
             
             const fs = require('fs');
@@ -57,7 +57,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.payload.issue.number,
-                body: `The following sources contains disabled tests due to this issue. Reenable them before closing the issue.\n\n${x(grepOutput, projectURL)}`
+                body: `:warning: The following sources contains disabled tests due to this issue. Reenable them before closing the issue.\n\n${x(grepOutput, projectURL)}`
               });
 
               core.warning(grepOutput);
