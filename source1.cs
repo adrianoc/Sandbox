@@ -20,3 +20,5 @@ void FooBar() {}
 void FooBar() {
     var x = IgnoreReason="do not works.. #193 bla bla"; 
 }
+
+x.SetIgnore("bla bla #193 bla bla");
