@@ -43,7 +43,7 @@ jobs:
               const issueLabels = context.payload.issue.labels.map(label => label.name);
               const projectURL = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
 
-              if (issueLables.includes("force-close")) {
+              if (issueLabels.includes("force-close")) {
                 await github.rest.issues.createComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
