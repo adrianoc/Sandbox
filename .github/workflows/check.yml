@@ -11,17 +11,35 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Grep for the issue 
-        run : grep -rHn "#${{ github.event.issue.number }}" --include="*.cs" . > sources-referencing-closed-issues.txt || true
+        run : grep -rHn -E "Test\(.*Ignore=.+#${{ github.event.issue.number }}.+\)" --include="*.cs" . > sources-referencing-closed-issues.txt || true
+        run : grep -rHn -E "Ignore\(.+?#${{ github.event.issue.number }}.+\)" --include="*.cs" . >> sources-referencing-closed-issues.txt || true
+        run : grep -rHn -E "SetIgnore\(.+?#${{ github.event.issue.number }}.+\)" --include="*.cs" . >> sources-referencing-closed-issues.txt || true
+        run : grep -rHn -E "IgnoreReason=.*#${{ github.event.issue.number }}.*" --include="*.cs" . >> sources-referencing-closed-issues.txt || true
       - name: Checking grep resuls
         uses : actions/github-script@v6
         with: 
           script: |
+
+            function x(content, repo) {
+              const lines = content.trim().split('\n');
+
+              const splitLines = lines.map(line => {
+                const lineParts = line.split(':');
+                //return `[${lineParts[0]}](https://github.com/adrianoc/Sandbox/blob/${1}/${lineParts[0]}), Line:${lineParts[1]}, Reference:${lineParts[2]}`;
+                return `[${lineParts[0]}]($(repo)/blob/main/${lineParts[0]}), Line:${lineParts[1]}, Reference:${lineParts[2]}`;
+              });
+
+              return splitLines.join("<br />");
+            }
+            
             const fs = require('fs');
               
             // Read the grep results
             const grepOutput = fs.readFileSync('./sources-referencing-closed-issues.txt', 'utf8');
             
             if (grepOutput) {
+              var offendingSources = x(grepOutput, context.repo.repo);
+
               const issueBody = context.payload.issue.body;
               const issueLabels = context.payload.issue.labels.map(label => label.name);
 
@@ -38,7 +56,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.payload.issue.number,
-                body: `The following tests are disabled due to this issue. Reenable them before closing the issue.\n\n${ grepOutput }`
+                body: `The following sources contains disabled tests due to this issue. Reenable them before closing the issue.\n\n${ grepOutput }`
               });
 
               core.warning(grepOutput);
