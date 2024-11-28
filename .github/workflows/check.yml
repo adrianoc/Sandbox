@@ -20,7 +20,7 @@ jobs:
         with: 
           script: |
 
-            function x(content, repo) {
+            function parseSourcesReferencingIssue(content, repo) {
               const lines = content.trim().split('\n');
 
               const splitLines = lines.map(line => {
@@ -37,28 +37,35 @@ jobs:
             const grepOutput = fs.readFileSync('./sources-referencing-closed-issues.txt', 'utf8');
             
             if (grepOutput) {
-              var offendingSources = x(grepOutput, context.repo.repo);
+              var offendingSources = parseSourcesReferencingIssue(grepOutput, context.repo.repo);
 
               const issueBody = context.payload.issue.body;
               const issueLabels = context.payload.issue.labels.map(label => label.name);
+              const projectURL = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
 
-              // Reopen the issue
-              await github.rest.issues.update({
+              if (issueLables.includes("force-close")) {
+                await github.rest.issues.createComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: context.payload.issue.number,
-                  state: 'open'
-              });
+                  body: `:warning: The following sources contains disabled tests due to this issue but 'force-close' label was applied so issue has been closed.\n\n${x(grepOutput, projectURL)}`
+                });
+              }
+              else {
+                // Reopen the issue
+                await github.rest.issues.update({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: context.payload.issue.number,
+                    state: 'open'
+                });
 
-              const projectURL = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
-
-              // Add a comment warning the user
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.issue.number,
-                body: `:warning: The following sources contains disabled tests due to this issue. Reenable them before closing the issue.\n\n${x(grepOutput, projectURL)}`
-              });
-
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.payload.issue.number,
+                  body: `:warning: The following sources contains disabled tests due to this issue. Reenable them before closing the issue.\n\n${x(grepOutput, projectURL)}`
+                });
+              }
               core.warning(grepOutput);
             }
