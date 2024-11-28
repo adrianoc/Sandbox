@@ -48,7 +48,7 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: context.payload.issue.number,
-                  body: `:warning: The following sources contains disabled tests due to this issue but 'force-close' label was applied so issue has been closed.\n\n${offendingSources}`
+                  body: `:warning: The following source files contains disabled tests due to this issue but 'force-close' label was applied so issue has been closed.\n\n${offendingSources}`
                 });
               }
               else {
@@ -64,7 +64,7 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   issue_number: context.payload.issue.number,
-                  body: `:warning: The following sources contains disabled tests due to this issue. Reenable them before closing the issue.\n\n${offendingSources}`
+                  body: `:warning: The following source files contains disabled tests due to this issue. Reenable them before closing the issue.\n\n${offendingSources}`
                 });
               }
               core.warning(grepOutput);
