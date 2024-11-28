@@ -50,7 +50,7 @@ jobs:
                   state: 'open'
               });
 
-              const projectURL = `https://github.com/${context.repo.ower}/${context.repo.repo}`;
+              const projectURL = `https://github.com/${context.repo.owner}/${context.repo.repo}`;
 
               // Add a comment warning the user
               await github.rest.issues.createComment({
